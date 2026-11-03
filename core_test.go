@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -97,21 +99,34 @@ func TestTruncateForLog(t *testing.T) {
 func TestStateDirPerOS(t *testing.T) {
 	t.Setenv("AUX4_COMPUTER_STATE_DIR", "")
 	t.Setenv("HOME", "/home/sally")
+	t.Setenv("USERPROFILE", "/home/sally") // the home directory on a Windows host
 	t.Setenv("XDG_STATE_HOME", "")
 	t.Setenv("AUX4_COMPUTER_OS", "linux")
-	if got := stateDir(); got != "/home/sally/.local/state/aux4-computer" {
+	if got := filepath.ToSlash(stateDir()); got != "/home/sally/.local/state/aux4-computer" {
 		t.Fatal(got)
 	}
 	t.Setenv("XDG_STATE_HOME", "/xdg")
-	if got := stateDir(); got != "/xdg/aux4-computer" {
+	if got := filepath.ToSlash(stateDir()); got != "/xdg/aux4-computer" {
 		t.Fatal(got)
 	}
 	t.Setenv("AUX4_COMPUTER_OS", "darwin")
-	if got := stateDir(); got != "/home/sally/Library/Application Support/aux4-computer" {
+	if got := filepath.ToSlash(stateDir()); got != "/home/sally/Library/Application Support/aux4-computer" {
 		t.Fatal(got)
 	}
 	t.Setenv("AUX4_COMPUTER_STATE_DIR", "/custom")
-	if got := stateDir(); got != "/custom" || useLegacyMacPaths() {
+	if got := filepath.ToSlash(stateDir()); got != "/custom" || useLegacyMacPaths() {
 		t.Fatal(got)
+	}
+}
+
+func TestConformanceTestArgsUseForwardSlashes(t *testing.T) {
+	target := filepath.Join("work", "pkg", ".aux4-computer-conformance")
+	args := conformanceTestArgs(target)
+	want := []string{"test", "run", "--dir", "work/pkg/.aux4-computer-conformance"}
+	if strings.Join(args, " ") != strings.Join(want, " ") {
+		t.Fatalf("conformanceTestArgs(%q) = %q, want %q", target, args, want)
+	}
+	if strings.Contains(args[3], `\`) {
+		t.Fatalf("--dir keeps a backslash: %q", args[3])
 	}
 }

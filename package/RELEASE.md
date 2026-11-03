@@ -1,5 +1,6 @@
 # Release notes
 
+- `aux4 computer conformance` works on Windows: the suite directory is passed to `aux4 test run` with forward slashes, so a Windows path keeps its separators.
 - New package: `aux4 computer <command>` runs the computer-use command surface on the provider for this OS (`mac`, `linux`, `win`), with `--provider` to pick one; flags pass through unchanged.
 - Clear errors when the provider is missing (names the package to install) or speaks another contract version; providers without `info` are used and listed as `legacy`.
 - `aux4 computer providers`, `info` and `notes`.
