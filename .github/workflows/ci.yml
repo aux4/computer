@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+      - dev
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: aux4/action@v1
+        with:
+          command: lint
+          strict: 'true'
+
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+
+      - name: Go unit tests
+        run: go test ./...
+
+      - uses: aux4/action@v1
+        with:
+          command: test
+          build_command: aux4 builder linux
+
+  test-darwin:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+
+      - uses: aux4/action@v1
+        with:
+          command: test
+          build_command: aux4 builder darwin

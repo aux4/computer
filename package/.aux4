@@ -1,0 +1,1644 @@
+{
+  "scope": "aux4",
+  "name": "computer",
+  "version": "0.1.0",
+  "description": "Computer-use for AI agents on any OS: one command surface (screenshot, find, click, type, windows, clipboard...) dispatched to the provider for this operating system, with a shared stop switch, action log, conformance suite and AI skill",
+  "license": "Apache-2.0",
+  "tags": [
+    "aux4",
+    "computer-use",
+    "accessibility",
+    "automation",
+    "agent",
+    "ai-skill",
+    "macos",
+    "linux",
+    "windows"
+  ],
+  "profiles": [
+    {
+      "name": "main",
+      "commands": [
+        {
+          "name": "computer",
+          "execute": [
+            "profile:computer"
+          ],
+          "help": {
+            "text": "Computer-use commands for AI agents."
+          }
+        },
+        {
+          "name": "ai",
+          "execute": [
+            "profile:ai"
+          ],
+          "help": {
+            "text": "AI commands"
+          }
+        }
+      ]
+    },
+    {
+      "name": "computer",
+      "commands": [
+        {
+          "name": "providers",
+          "execute": [
+            "${packageDir}/aux4-computer providers values(provider)"
+          ],
+          "help": {
+            "text": "List the installed computer providers, their contract version, capabilities and which one this OS uses",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Also probe this provider name (beyond mac, linux and win)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "info",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch info values(provider)"
+          ],
+          "help": {
+            "text": "Describe the current provider: name, contract version, platform, version, capabilities, permissions",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "notes",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch notes values(provider)"
+          ],
+          "help": {
+            "text": "Print the current provider's platform notes for agents (markdown)",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "permissions",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch permissions values(provider)"
+          ],
+          "help": {
+            "text": "Check Accessibility and Screen Recording permission status",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "screenshot",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch screenshot values(provider) params(output, display, app, maxWidth, annotate, roles, limit)"
+          ],
+          "help": {
+            "text": "Capture a screenshot of a display or a specific app's window",
+            "variables": [
+              {
+                "name": "output",
+                "text": "File path to save the PNG to (defaults to a temp file)",
+                "default": ""
+              },
+              {
+                "name": "display",
+                "text": "Display index to capture (from 'computer screen') (provider default: 0)",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "Capture this app's front window (even when covered by other windows) instead of a display",
+                "default": ""
+              },
+              {
+                "name": "maxWidth",
+                "text": "Resize down if wider than this, preserving aspect ratio (provider default: 1568)",
+                "default": ""
+              },
+              {
+                "name": "annotate",
+                "text": "Draw a numbered box on each element (set-of-marks) and return the marks: number, ref, role, label, frame, center, windowCenter (provider default: false)",
+                "default": "",
+                "options": [
+                  "false",
+                  "true"
+                ]
+              },
+              {
+                "name": "roles",
+                "text": "With --annotate: actionable (default: buttons, links, fields, checkboxes, menus, pop-ups, tabs, rows) or all (also text, images, headings, cells) (provider default: actionable)",
+                "default": "",
+                "options": [
+                  "actionable",
+                  "all"
+                ]
+              },
+              {
+                "name": "limit",
+                "text": "With --annotate: most marks to draw (the rest are reported as truncated) (provider default: 150)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "ocr",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch ocr values(provider) params(app, image, text, level, languages, mode, scale, timeout)"
+          ],
+          "help": {
+            "text": "Recognize text on the screen, an app's window or a PNG, with positions in click coordinates",
+            "variables": [
+              {
+                "name": "app",
+                "text": "Read this app's front window (even when covered by other windows); positions are also given relative to it as windowCenter, the space 'click --app' uses",
+                "default": ""
+              },
+              {
+                "name": "image",
+                "text": "Recognize an existing PNG instead of capturing the screen (no Screen Recording permission needed)",
+                "default": ""
+              },
+              {
+                "name": "text",
+                "text": "Only return lines containing this text (case-insensitive); each line also gets a 'match' with the position of just that text",
+                "default": ""
+              },
+              {
+                "name": "level",
+                "text": "accurate (default) or fast recognition (provider default: accurate)",
+                "default": "",
+                "options": [
+                  "accurate",
+                  "fast"
+                ]
+              },
+              {
+                "name": "languages",
+                "text": "Comma-separated recognition languages in priority order, e.g. en-US,pt-BR (default: the system's default)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): capture in the background, bringing the app to the front only if its window isn't on screen; background: never bring it forward (error instead); foreground: bring the app to the front for the capture, then restore (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "scale",
+                "text": "With --image: image pixels per point (the 'scale' from 'screenshot'), so positions come out in points (provider default: 1)",
+                "default": ""
+              },
+              {
+                "name": "timeout",
+                "text": "Give up with a JSON error after this long, e.g. 30s, 2m (default 60s: the first recognition after installing or updating takes about 30s) (provider default: 60s)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "wait",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch wait values(provider) params(text, role, app, gone, source, timeout, interval)"
+          ],
+          "help": {
+            "text": "Wait until text, an element or an app window appears (or is gone), checking the accessibility tree first, then OCR",
+            "variables": [
+              {
+                "name": "text",
+                "text": "Text to wait for in element labels/values or on the pixels (ignores case, whitespace and commas, so 1792 matches 1,792)",
+                "default": "",
+                "arg": true
+              },
+              {
+                "name": "role",
+                "text": "Only elements with this role: the provider's native name or the mac name (AXButton, AXTextField...), accessibility only",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "App to watch (defaults to the frontmost app / the whole screen); alone, wait until it is running with an on-screen window",
+                "default": ""
+              },
+              {
+                "name": "gone",
+                "text": "true: wait until the text, element or app window is no longer there (provider default: false)",
+                "default": "",
+                "options": [
+                  "false",
+                  "true"
+                ]
+              },
+              {
+                "name": "source",
+                "text": "auto (default): accessibility first, OCR of the app window (or screen) when accessibility has no match; ax (accessibility) or ocr: only that one (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "ax",
+                  "ocr"
+                ]
+              },
+              {
+                "name": "timeout",
+                "text": "How long to wait before failing, e.g. 500ms, 10s, 2m (provider default: 10s)",
+                "default": ""
+              },
+              {
+                "name": "interval",
+                "text": "Pause between checks, e.g. 250ms, 1s (checks never overlap) (provider default: 500ms)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "read",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch read values(provider) params(app, depth)"
+          ],
+          "help": {
+            "text": "Read the accessibility tree of the frontmost or named app",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App name to read (defaults to the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "depth",
+                "text": "Maximum tree depth to walk (provider default: 10)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "find",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch find values(provider) params(text, role, app)"
+          ],
+          "help": {
+            "text": "Find UI elements by text and/or role",
+            "variables": [
+              {
+                "name": "text",
+                "text": "Text to search for in element label/value",
+                "default": "",
+                "arg": true
+              },
+              {
+                "name": "role",
+                "text": "Filter by role: the provider's native name or the mac name (AXButton, AXTextField, AXStaticText...)",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "App to search (defaults to the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "click",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch click values(provider) params(x, y, button, count, element, app, mode)"
+          ],
+          "help": {
+            "text": "Click at coordinates or press an element; in the background by default",
+            "variables": [
+              {
+                "name": "x",
+                "text": "X coordinate: relative to the app's window with --app (same as 'screenshot --app'), screen points without",
+                "default": ""
+              },
+              {
+                "name": "y",
+                "text": "Y coordinate: relative to the app's window with --app (same as 'screenshot --app'), screen points without",
+                "default": ""
+              },
+              {
+                "name": "button",
+                "text": "left or right (provider default: left)",
+                "default": ""
+              },
+              {
+                "name": "count",
+                "text": "Click count (2 for double-click) (provider default: 1)",
+                "default": ""
+              },
+              {
+                "name": "element",
+                "text": "Element ref from 'read'/'find' to press instead of x/y",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "Target app; x/y become relative to its window (default: the frontmost app, screen points)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "move",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch move values(provider) params(x, y)"
+          ],
+          "help": {
+            "text": "Move the mouse cursor to screen coordinates (always real foreground)",
+            "variables": [
+              {
+                "name": "x",
+                "text": "X coordinate in screen points"
+              },
+              {
+                "name": "y",
+                "text": "Y coordinate in screen points"
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "drag",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch drag values(provider) params(x, y, toX, toY)"
+          ],
+          "help": {
+            "text": "Drag the mouse from one point to another (always real foreground)",
+            "variables": [
+              {
+                "name": "x",
+                "text": "Start X coordinate"
+              },
+              {
+                "name": "y",
+                "text": "Start Y coordinate"
+              },
+              {
+                "name": "toX",
+                "text": "End X coordinate"
+              },
+              {
+                "name": "toY",
+                "text": "End Y coordinate"
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "type",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch type values(provider) params(text, delay, app, mode)"
+          ],
+          "help": {
+            "text": "Type unicode-safe text into the focused element of an app; in the background by default",
+            "variables": [
+              {
+                "name": "text",
+                "text": "Text to type",
+                "arg": true
+              },
+              {
+                "name": "delay",
+                "text": "Milliseconds to wait before typing (e.g. for a panel to appear) (provider default: 0)",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "App to type into (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "shortcut",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch shortcut values(provider) params(keys, delay, app, mode)"
+          ],
+          "help": {
+            "text": "Press a keyboard shortcut, e.g. cmd+s on macOS, ctrl+s on Linux/Windows",
+            "variables": [
+              {
+                "name": "keys",
+                "text": "Key combo, e.g. 'cmd+c' (macOS), 'ctrl+c' (Linux/Windows), 'enter', 'escape'",
+                "arg": true
+              },
+              {
+                "name": "delay",
+                "text": "Milliseconds to wait before pressing (provider default: 0)",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "Send the shortcut to this app (background when possible); without it the shortcut is system-wide (real input)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "scroll",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch scroll values(provider) params(x, y, dx, dy, app, mode)"
+          ],
+          "help": {
+            "text": "Scroll at a position in an app; in the background by default",
+            "variables": [
+              {
+                "name": "x",
+                "text": "X coordinate to scroll at: relative to the app's window with --app, screen points without",
+                "default": ""
+              },
+              {
+                "name": "y",
+                "text": "Y coordinate to scroll at: relative to the app's window with --app, screen points without",
+                "default": ""
+              },
+              {
+                "name": "dx",
+                "text": "Horizontal scroll delta in pixels (provider default: 0)",
+                "default": ""
+              },
+              {
+                "name": "dy",
+                "text": "Vertical scroll delta in pixels (provider default: 0)",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "App to scroll (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "cursor",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch cursor values(provider)"
+          ],
+          "help": {
+            "text": "Get the current mouse cursor position",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "screen",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch screen values(provider)"
+          ],
+          "help": {
+            "text": "List displays with bounds and scale factor",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "apps",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch apps values(provider)"
+          ],
+          "help": {
+            "text": "List running applications",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "windows",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch windows values(provider)"
+          ],
+          "help": {
+            "text": "List on-screen windows",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "quit",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch quit values(provider) params(app, force, timeout)"
+          ],
+          "help": {
+            "text": "Quit an app (reports a 'save changes?' dialog instead of quitting); --force true kills it",
+            "variables": [
+              {
+                "name": "app",
+                "text": "Application name or platform id",
+                "arg": true
+              },
+              {
+                "name": "force",
+                "text": "Force-quit (unsaved changes are lost; the desktop shell is refused) (provider default: false)",
+                "default": "",
+                "options": [
+                  "false",
+                  "true"
+                ]
+              },
+              {
+                "name": "timeout",
+                "text": "How long to wait for the app to exit, e.g. 5s (provider default: 5s)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "hide",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch hide values(provider) params(app)"
+          ],
+          "help": {
+            "text": "Hide an app (without activating anything)",
+            "variables": [
+              {
+                "name": "app",
+                "text": "Application name or platform id",
+                "arg": true
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "unhide",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch unhide values(provider) params(app)"
+          ],
+          "help": {
+            "text": "Show a hidden app again without bringing it to the front",
+            "variables": [
+              {
+                "name": "app",
+                "text": "Application name or platform id",
+                "arg": true
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "open",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch open values(provider) params(app, mode, file, url, wait, hidden)"
+          ],
+          "help": {
+            "text": "Open an app, a file or a URL without bringing anything to the front (by default); optionally wait for its window",
+            "variables": [
+              {
+                "name": "app",
+                "text": "Application name or platform id (macOS bundle id, Linux desktop id, Windows process/AppUserModelID); optional with --file/--url (their default app is used)",
+                "default": "",
+                "arg": true
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): open without activating, put the frontmost app back if the app activates itself; background: same, error instead of bringing anything forward; foreground: open and activate the app (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "file",
+                "text": "File to open (in --app, or its default app)",
+                "default": ""
+              },
+              {
+                "name": "url",
+                "text": "URL to open (in --app, or the default handler), e.g. https://aux4.io",
+                "default": ""
+              },
+              {
+                "name": "wait",
+                "text": "Wait up to this long for the app's window (the file's window with --file) and return its frame, e.g. 10s",
+                "default": ""
+              },
+              {
+                "name": "hidden",
+                "text": "Launch the app hidden (provider default: false)",
+                "default": "",
+                "options": [
+                  "false",
+                  "true"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "focus",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch focus values(provider) params(app)"
+          ],
+          "help": {
+            "text": "Bring a running application to the foreground (always real foreground)",
+            "variables": [
+              {
+                "name": "app",
+                "text": "Application name",
+                "arg": true
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "state",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch state values(provider) params(app, depth, limit)"
+          ],
+          "help": {
+            "text": "One-call snapshot: frontmost app, the app's windows, focused element, open dialog and a compact tree of its actionable/text elements",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App to describe: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "depth",
+                "text": "Levels of actionable/text elements to include (layout groups don't count; 0 = none) (provider default: 3)",
+                "default": ""
+              },
+              {
+                "name": "limit",
+                "text": "Maximum number of elements in the compact tree (provider default: 120)",
+                "default": ""
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "menu",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch menu values(provider) params(app, path, depth, mode)"
+          ],
+          "help": {
+            "text": "List an app's menu bar, or press a menu item by path (e.g. 'Format > Font > Bold'); in the background by default",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose menu bar to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "path",
+                "text": "Menu item to press, titles separated by '>' (case-insensitive, trailing '…' optional); omit to list the menu bar",
+                "default": ""
+              },
+              {
+                "name": "depth",
+                "text": "Menu levels to list: 1 = menu titles, 2 = their items (default), 3+ = submenus (provider default: 2)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "select",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch select values(provider) params(app, all, text, occurrence, start, length, element, mode)"
+          ],
+          "help": {
+            "text": "Select text in the focused (or given) text element through Accessibility; in the background",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App to select in: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "all",
+                "text": "Select all the element's text (provider default: false)",
+                "default": "",
+                "options": [
+                  "false",
+                  "true"
+                ]
+              },
+              {
+                "name": "text",
+                "text": "Select this text (case-insensitive)",
+                "default": ""
+              },
+              {
+                "name": "occurrence",
+                "text": "Which match of --text to select (1 = first)",
+                "default": ""
+              },
+              {
+                "name": "start",
+                "text": "Start of the range to select (character offset from 0)",
+                "default": ""
+              },
+              {
+                "name": "length",
+                "text": "Length of the range to select (characters)",
+                "default": ""
+              },
+              {
+                "name": "element",
+                "text": "Text element ref from 'find' or 'state' (default: the app's focused element)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "set",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch set values(provider) params(app, element, value, checked, option, mode)"
+          ],
+          "help": {
+            "text": "Set an element: a text field or slider value, a checkbox state or a pop-up option; in the background",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App the element belongs to: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "element",
+                "text": "Element ref from 'find' or 'state'",
+                "default": ""
+              },
+              {
+                "name": "value",
+                "text": "New value for a text field, text area, combo box or slider",
+                "default": ""
+              },
+              {
+                "name": "checked",
+                "text": "true or false: press the checkbox/radio button until it is in that state",
+                "default": ""
+              },
+              {
+                "name": "option",
+                "text": "Option title to pick in a pop-up button, combo box or radio group",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "dialog",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch dialog values(provider) params(app, press, mode)"
+          ],
+          "help": {
+            "text": "Detect an open alert, sheet, dialog or save/open panel (kind, title, text, buttons, fields); --press a button by title",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App to check: name or platform id (default: the frontmost app, then system alerts)",
+                "default": ""
+              },
+              {
+                "name": "press",
+                "text": "Button to press, by title (case-insensitive, e.g. \"Don't Save\")",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "window",
+          "execute": [
+            "profile:computer:window"
+          ],
+          "help": {
+            "text": "List and control windows: list, move, resize, minimize, restore, close, fullscreen, raise"
+          }
+        },
+        {
+          "name": "clipboard",
+          "execute": [
+            "profile:computer:clipboard"
+          ],
+          "help": {
+            "text": "Copy and paste through the clipboard (with an app), or read it"
+          }
+        },
+        {
+          "name": "stop",
+          "execute": [
+            "${packageDir}/aux4-computer stop"
+          ],
+          "help": {
+            "text": "Turn on the shared stop switch: every provider refuses input and state-changing commands until 'resume'"
+          }
+        },
+        {
+          "name": "resume",
+          "execute": [
+            "${packageDir}/aux4-computer resume"
+          ],
+          "help": {
+            "text": "Turn off the shared stop switch so input and state-changing commands run again"
+          }
+        },
+        {
+          "name": "log",
+          "execute": [
+            "${packageDir}/aux4-computer log values(limit)"
+          ],
+          "help": {
+            "text": "Show the most recent entries of the shared action log (every input/state command any provider ran or refused)",
+            "variables": [
+              {
+                "name": "limit",
+                "text": "Number of recent entries to show, oldest first",
+                "default": "20"
+              }
+            ]
+          }
+        },
+        {
+          "name": "conformance",
+          "execute": [
+            "${packageDir}/aux4-computer conformance ${packageDir} values(provider, dir)"
+          ],
+          "help": {
+            "text": "Run the provider contract conformance suite against a provider (headless-safe; needs aux4/test)",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              },
+              {
+                "name": "dir",
+                "text": "Directory to run from; run it from a provider's package/ directory to test that working copy",
+                "default": "."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "computer:window",
+      "commands": [
+        {
+          "name": "list",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:list values(provider) params(app)"
+          ],
+          "help": {
+            "text": "List an app's windows (index, ref, title, frame, minimized, fullscreen, main, focused)",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose windows to list: name or platform id (default: the frontmost app)",
+                "default": "",
+                "arg": true
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "move",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:move values(provider) params(app, title, index, x, y, mode)"
+          ],
+          "help": {
+            "text": "Move a window so its top-left corner is at --x/--y (screen points); returns the frame before and after",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "x",
+                "text": "Screen x of the window's top-left corner (negative: --x=-100)",
+                "default": ""
+              },
+              {
+                "name": "y",
+                "text": "Screen y of the window's top-left corner",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to bringing the app forward only if that isn't possible; background: never fall back (error instead); foreground: bring the app forward first (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "resize",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:resize values(provider) params(app, title, index, width, height, mode)"
+          ],
+          "help": {
+            "text": "Resize a window to --width/--height (points; give one to keep the other); returns the frame before and after",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "width",
+                "text": "New width in points (default: keep)",
+                "default": ""
+              },
+              {
+                "name": "height",
+                "text": "New height in points (default: keep)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to bringing the app forward only if that isn't possible; background: never fall back (error instead); foreground: bring the app forward first (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "minimize",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:minimize values(provider) params(app, title, index, mode)"
+          ],
+          "help": {
+            "text": "Minimize a window",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to bringing the app forward only if that isn't possible; background: never fall back (error instead); foreground: bring the app forward first (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "restore",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:restore values(provider) params(app, title, index, mode)"
+          ],
+          "help": {
+            "text": "Restore a minimized window (without bringing its app to the front)",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to bringing the app forward only if that isn't possible; background: never fall back (error instead); foreground: bring the app forward first (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "close",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:close values(provider) params(app, title, index, mode)"
+          ],
+          "help": {
+            "text": "Close a window with its close button; reports the 'save changes?' sheet if the app asks",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to bringing the app forward only if that isn't possible; background: never fall back (error instead); foreground: bring the app forward first (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "fullscreen",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:fullscreen values(provider) params(app, title, index, enabled, mode)"
+          ],
+          "help": {
+            "text": "Enter or leave full screen (enabled true|false)",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "enabled",
+                "text": "true to enter full screen, false to leave it (provider default: true)",
+                "default": "",
+                "arg": true,
+                "options": [
+                  "true",
+                  "false"
+                ]
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to bringing the app forward only if that isn't possible; background: never fall back (error instead); foreground: bring the app forward first (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "raise",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch window:raise values(provider) params(app, title, index, mode)"
+          ],
+          "help": {
+            "text": "Raise a window and bring its app to the front (always real foreground)",
+            "variables": [
+              {
+                "name": "app",
+                "text": "App whose window to use: name or platform id (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "title",
+                "text": "Window title (exact, then contained; case-insensitive); default: the app's main window",
+                "default": ""
+              },
+              {
+                "name": "index",
+                "text": "Window index from 'window list' (instead of --title)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default) or foreground; background is refused (raising is foreground by nature) (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "computer:clipboard",
+      "commands": [
+        {
+          "name": "copy",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch clipboard:copy values(provider) params(text, app, mode)"
+          ],
+          "help": {
+            "text": "Copy to the clipboard: with --text, write it directly; without, copy the app's current selection (background by default) and return it",
+            "variables": [
+              {
+                "name": "text",
+                "text": "Text to put on the clipboard; omit to copy the current selection",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "App whose selection to copy (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "paste",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch clipboard:paste values(provider) params(text, app, mode)"
+          ],
+          "help": {
+            "text": "Paste the clipboard into the focused element of an app (background by default); with --text, write it to the clipboard first",
+            "variables": [
+              {
+                "name": "text",
+                "text": "Text to put on the clipboard before pasting; omit to paste the current clipboard contents",
+                "default": ""
+              },
+              {
+                "name": "app",
+                "text": "App to paste into (default: the frontmost app)",
+                "default": ""
+              },
+              {
+                "name": "mode",
+                "text": "auto (default): act in the background, fall back to real input only if that isn't possible; background: never fall back (error instead); foreground: always use real input (provider default: auto)",
+                "default": "",
+                "options": [
+                  "auto",
+                  "background",
+                  "foreground"
+                ]
+              },
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        },
+        {
+          "name": "read",
+          "execute": [
+            "${packageDir}/aux4-computer dispatch clipboard:read values(provider)"
+          ],
+          "help": {
+            "text": "Read the current clipboard text (no side effects)",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ai",
+      "commands": [
+        {
+          "name": "skill",
+          "execute": [
+            "profile:ai:skill"
+          ],
+          "help": {
+            "text": "AI skills: methods agents can load as instructions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ai:skill",
+      "commands": [
+        {
+          "name": "computer",
+          "execute": [
+            "profile:ai:skill:computer"
+          ],
+          "help": {
+            "text": "The computer-use skill for agents"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ai:skill:computer",
+      "commands": [
+        {
+          "name": "prompt",
+          "execute": [
+            "cat ${packageDir}/instructions/computer.md",
+            "${packageDir}/aux4-computer notes values(provider)"
+          ],
+          "help": {
+            "text": "Print the computer-use method for agents (state, find, ocr, annotate, act, wait; background vs foreground; stop and log; data-loss warnings), followed by the current provider's platform notes",
+            "variables": [
+              {
+                "name": "provider",
+                "text": "Provider to use: mac, linux or win (default: the one for this operating system; env AUX4_COMPUTER_PROVIDER)",
+                "env": "AUX4_COMPUTER_PROVIDER",
+                "default": ""
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+.idea
+**/.DS_Store
+**/*.zip
+package/aux4-computer
+package/dist
+package/test/state
+package/.aux4-computer-conformance
+/computer
