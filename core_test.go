@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -113,5 +115,17 @@ func TestStateDirPerOS(t *testing.T) {
 	t.Setenv("AUX4_COMPUTER_STATE_DIR", "/custom")
 	if got := stateDir(); got != "/custom" || useLegacyMacPaths() {
 		t.Fatal(got)
+	}
+}
+
+func TestConformanceTestArgsUseForwardSlashes(t *testing.T) {
+	target := filepath.Join("work", "pkg", ".aux4-computer-conformance")
+	args := conformanceTestArgs(target)
+	want := []string{"test", "run", "--dir", "work/pkg/.aux4-computer-conformance"}
+	if strings.Join(args, " ") != strings.Join(want, " ") {
+		t.Fatalf("conformanceTestArgs(%q) = %q, want %q", target, args, want)
+	}
+	if strings.Contains(args[3], `\`) {
+		t.Fatalf("--dir keeps a backslash: %q", args[3])
 	}
 }

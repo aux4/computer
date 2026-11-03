@@ -62,7 +62,7 @@ func cmdConformance(args []string) int {
 		}
 	}
 	fmt.Fprintf(os.Stderr, "Running the computer contract %d conformance suite against provider '%s' (%d files)\n", ContractVersion, provider, len(files))
-	cmd := exec.Command(aux4Binary(), "test", "run", "--dir", target)
+	cmd := exec.Command(aux4Binary(), conformanceTestArgs(target)...)
 	cmd.Dir = target
 	env := []string{}
 	for _, e := range os.Environ() {
@@ -81,4 +81,11 @@ func cmdConformance(args []string) int {
 		return 1
 	}
 	return 0
+}
+
+// conformanceTestArgs is the `aux4 test run` call for the copied suite. The directory is passed with
+// forward slashes: aux4/test puts it on a bash command line, where an unquoted Windows path
+// (C:\Users\...) would lose its backslashes. A no-op on macOS/Linux.
+func conformanceTestArgs(target string) []string {
+	return []string{"test", "run", "--dir", filepath.ToSlash(target)}
 }
