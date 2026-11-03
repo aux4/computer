@@ -99,21 +99,22 @@ func TestTruncateForLog(t *testing.T) {
 func TestStateDirPerOS(t *testing.T) {
 	t.Setenv("AUX4_COMPUTER_STATE_DIR", "")
 	t.Setenv("HOME", "/home/sally")
+	t.Setenv("USERPROFILE", "/home/sally") // the home directory on a Windows host
 	t.Setenv("XDG_STATE_HOME", "")
 	t.Setenv("AUX4_COMPUTER_OS", "linux")
-	if got := stateDir(); got != "/home/sally/.local/state/aux4-computer" {
+	if got := filepath.ToSlash(stateDir()); got != "/home/sally/.local/state/aux4-computer" {
 		t.Fatal(got)
 	}
 	t.Setenv("XDG_STATE_HOME", "/xdg")
-	if got := stateDir(); got != "/xdg/aux4-computer" {
+	if got := filepath.ToSlash(stateDir()); got != "/xdg/aux4-computer" {
 		t.Fatal(got)
 	}
 	t.Setenv("AUX4_COMPUTER_OS", "darwin")
-	if got := stateDir(); got != "/home/sally/Library/Application Support/aux4-computer" {
+	if got := filepath.ToSlash(stateDir()); got != "/home/sally/Library/Application Support/aux4-computer" {
 		t.Fatal(got)
 	}
 	t.Setenv("AUX4_COMPUTER_STATE_DIR", "/custom")
-	if got := stateDir(); got != "/custom" || useLegacyMacPaths() {
+	if got := filepath.ToSlash(stateDir()); got != "/custom" || useLegacyMacPaths() {
 		t.Fatal(got)
 	}
 }
