@@ -2,104 +2,106 @@ context: computer
 actions:
   # Every action below calls the front door "aux4 computer <verb>" (never a
   # provider binary directly), so the shared stop switch and action log
-  # always apply. The block-level app ("on context computer with app
-  # \"X\"") is the default target via the {{app}} context variable; a
-  # per-step "in {app}" override wins for that line only, via the ${app}
-  # pattern variable. aux4/computer treats --app "" the same as omitting
-  # --app (frontmost app / whole screen), so {{app}} can always be embedded.
-  # All variables are single-quoted in the shell command so app/element
-  # names with spaces survive.
+  # always apply. value(x) and param(x) give aux4-core-style escaping (see
+  # aux4/playbook's README "Escaped Parameters: value() / param()"): a
+  # per-step "in {app}" pattern variable is checked before the block-level
+  # "with app \"X\"" context variable, and param(app) omits --app entirely
+  # when neither is set (frontmost app / whole screen), instead of passing
+  # it as an empty string.
 
   - expression: "open {app}"
-    execute: "aux4 computer open --app '${app}'"
+    execute: "aux4 computer open param(app)"
 
   - expression: "focus {app}"
-    execute: "aux4 computer focus --app '${app}'"
+    execute: "aux4 computer focus param(app)"
 
   - expression: "quit {app}"
-    execute: "aux4 computer quit --app '${app}'"
+    execute: "aux4 computer quit param(app)"
 
   - expression: "state in {app}"
-    execute: "aux4 computer state --app '${app}'"
+    execute: "aux4 computer state param(app)"
 
   - expression: "state"
-    execute: "aux4 computer state --app '{{app}}'"
+    execute: "aux4 computer state param(app)"
 
   - expression: "find {text} in {app}"
-    execute: "aux4 computer find --text '${text}' --app '${app}'"
+    execute: "aux4 computer find --text value(text) param(app)"
 
   - expression: "find {text}"
-    execute: "aux4 computer find --text '${text}' --app '{{app}}'"
+    execute: "aux4 computer find --text value(text) param(app)"
 
   - expression: "wait for {text} in {app}"
-    execute: "aux4 computer wait --text '${text}' --app '${app}'"
+    execute: "aux4 computer wait --text value(text) param(app)"
 
   - expression: "wait for {text}"
-    execute: "aux4 computer wait --text '${text}' --app '{{app}}'"
+    execute: "aux4 computer wait --text value(text) param(app)"
 
   # "click on {name}" resolves the label to coordinates via "find" (read-only)
   # and clicks through the front door; no --name flag exists on "click".
   # "click --app" takes WINDOW-relative coordinates (find's windowCenter);
   # without an app, coordinates are screen-absolute (find's center) -- jq
-  # picks the matching field based on whether an app is set for this line.
+  # picks the matching field based on whether an app is set for this line. jq
+  # needs the app value even when empty (to test its length), so it is passed
+  # via value(app) there; the actual --app flag on find/click uses param(app)
+  # so it is omitted, not passed empty, when unset.
   - expression: "click on {name} in {app}"
-    execute: "X=$(aux4 computer find --text '${name}' --app '${app}' | jq -r --arg app '${app}' 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.x // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.x // empty) end') && Y=$(aux4 computer find --text '${name}' --app '${app}' | jq -r --arg app '${app}' 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.y // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.y // empty) end') && if [ -z "$X" ]; then echo 'No element matching "${name}" found' >&2; exit 1; fi && aux4 computer click --x $X --y $Y --app '${app}'"
+    execute: "X=$(aux4 computer find --text value(name) param(app) | jq -r --arg app value(app) 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.x // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.x // empty) end') && Y=$(aux4 computer find --text value(name) param(app) | jq -r --arg app value(app) 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.y // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.y // empty) end') && if [ -z "$X" ]; then echo No element matching value(name) found >&2; exit 1; fi && aux4 computer click --x $X --y $Y param(app)"
 
   - expression: "click on {name}"
-    execute: "X=$(aux4 computer find --text '${name}' --app '{{app}}' | jq -r --arg app '{{app}}' 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.x // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.x // empty) end') && Y=$(aux4 computer find --text '${name}' --app '{{app}}' | jq -r --arg app '{{app}}' 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.y // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.y // empty) end') && if [ -z "$X" ]; then echo 'No element matching "${name}" found' >&2; exit 1; fi && aux4 computer click --x $X --y $Y --app '{{app}}'"
+    execute: "X=$(aux4 computer find --text value(name) param(app) | jq -r --arg app value(app) 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.x // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.x // empty) end') && Y=$(aux4 computer find --text value(name) param(app) | jq -r --arg app value(app) 'if ($app|length)>0 then ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].windowCenter.y // empty) else ((.matches | map(select(.frame.width>0 and .frame.height>0)))[0].center.y // empty) end') && if [ -z "$X" ]; then echo No element matching value(name) found >&2; exit 1; fi && aux4 computer click --x $X --y $Y param(app)"
 
   - expression: "click at {x} {y} in {app}"
-    execute: "aux4 computer click --x ${x} --y ${y} --app '${app}'"
+    execute: "aux4 computer click --x value(x) --y value(y) param(app)"
     params:
       x: -?\d+
       y: -?\d+
 
   - expression: "click at {x} {y}"
-    execute: "aux4 computer click --x ${x} --y ${y} --app '{{app}}'"
+    execute: "aux4 computer click --x value(x) --y value(y) param(app)"
     params:
       x: -?\d+
       y: -?\d+
 
   - expression: "type {text} in {app}"
-    execute: "aux4 computer type --text '${text}' --app '${app}'"
+    execute: "aux4 computer type --text value(text) param(app)"
 
   - expression: "type {text}"
-    execute: "aux4 computer type --text '${text}' --app '{{app}}'"
+    execute: "aux4 computer type --text value(text) param(app)"
 
   - expression: "shortcut {keys} in {app}"
-    execute: "aux4 computer shortcut --keys '${keys}' --app '${app}'"
+    execute: "aux4 computer shortcut --keys value(keys) param(app)"
 
   - expression: "shortcut {keys}"
-    execute: "aux4 computer shortcut --keys '${keys}' --app '{{app}}'"
+    execute: "aux4 computer shortcut --keys value(keys) param(app)"
 
   - expression: "press {keys} in {app}"
-    execute: "aux4 computer shortcut --keys '${keys}' --app '${app}'"
+    execute: "aux4 computer shortcut --keys value(keys) param(app)"
 
   - expression: "press {keys}"
-    execute: "aux4 computer shortcut --keys '${keys}' --app '{{app}}'"
+    execute: "aux4 computer shortcut --keys value(keys) param(app)"
 
   - expression: "scroll down {amount} in {app}"
-    execute: "aux4 computer scroll --dy ${amount} --app '${app}'"
+    execute: "aux4 computer scroll --dy value(amount) param(app)"
     params:
       amount: \d+
 
   - expression: "scroll down {amount}"
-    execute: "aux4 computer scroll --dy ${amount} --app '{{app}}'"
+    execute: "aux4 computer scroll --dy value(amount) param(app)"
     params:
       amount: \d+
 
   - expression: "scroll up {amount} in {app}"
-    execute: "aux4 computer scroll --dy -${amount} --app '${app}'"
+    execute: "aux4 computer scroll --dy -value(amount) param(app)"
     params:
       amount: \d+
 
   - expression: "scroll up {amount}"
-    execute: "aux4 computer scroll --dy -${amount} --app '{{app}}'"
+    execute: "aux4 computer scroll --dy -value(amount) param(app)"
     params:
       amount: \d+
 
   - expression: "drag from {x} {y} to {toX} {toY}"
-    execute: "aux4 computer drag --x ${x} --y ${y} --toX ${toX} --toY ${toY}"
+    execute: "aux4 computer drag --x value(x) --y value(y) --toX value(toX) --toY value(toY)"
     params:
       x: -?\d+
       y: -?\d+
@@ -107,58 +109,58 @@ actions:
       toY: -?\d+
 
   - expression: "menu {path} in {app}"
-    execute: "aux4 computer menu --path '${path}' --app '${app}'"
+    execute: "aux4 computer menu --path value(path) param(app)"
 
   - expression: "menu {path}"
-    execute: "aux4 computer menu --path '${path}' --app '{{app}}'"
+    execute: "aux4 computer menu --path value(path) param(app)"
 
   - expression: "press {button} dialog button in {app}"
-    execute: "aux4 computer dialog --press '${button}' --app '${app}'"
+    execute: "aux4 computer dialog --press value(button) param(app)"
 
   - expression: "press {button} dialog button"
-    execute: "aux4 computer dialog --press '${button}' --app '{{app}}'"
+    execute: "aux4 computer dialog --press value(button) param(app)"
 
   - expression: "dialog in {app}"
-    execute: "aux4 computer dialog --app '${app}'"
+    execute: "aux4 computer dialog param(app)"
 
   - expression: "dialog"
-    execute: "aux4 computer dialog --app '{{app}}'"
+    execute: "aux4 computer dialog param(app)"
 
   - expression: "screenshot {output} in {app}"
-    execute: "aux4 computer screenshot --output '${output}' --app '${app}'"
+    execute: "aux4 computer screenshot --output value(output) param(app)"
 
   - expression: "screenshot {output}"
-    execute: "aux4 computer screenshot --output '${output}' --app '{{app}}'"
+    execute: "aux4 computer screenshot --output value(output) param(app)"
 
   - expression: "screenshot in {app}"
-    execute: "aux4 computer screenshot --app '${app}'"
+    execute: "aux4 computer screenshot param(app)"
 
   - expression: "screenshot"
-    execute: "aux4 computer screenshot --app '{{app}}'"
+    execute: "aux4 computer screenshot param(app)"
 
   - expression: "ocr {text} in {app}"
-    execute: "aux4 computer ocr --text '${text}' --app '${app}'"
+    execute: "aux4 computer ocr --text value(text) param(app)"
 
   - expression: "ocr {text}"
-    execute: "aux4 computer ocr --text '${text}' --app '{{app}}'"
+    execute: "aux4 computer ocr --text value(text) param(app)"
 
   - expression: "ocr in {app}"
-    execute: "aux4 computer ocr --app '${app}'"
+    execute: "aux4 computer ocr param(app)"
 
   - expression: "ocr"
-    execute: "aux4 computer ocr --app '{{app}}'"
+    execute: "aux4 computer ocr param(app)"
 
   - expression: "clipboard copy in {app}"
-    execute: "aux4 computer clipboard copy --app '${app}'"
+    execute: "aux4 computer clipboard copy param(app)"
 
   - expression: "clipboard copy"
-    execute: "aux4 computer clipboard copy --app '{{app}}'"
+    execute: "aux4 computer clipboard copy param(app)"
 
   - expression: "clipboard paste {text} in {app}"
-    execute: "aux4 computer clipboard paste --text '${text}' --app '${app}'"
+    execute: "aux4 computer clipboard paste --text value(text) param(app)"
 
   - expression: "clipboard paste {text}"
-    execute: "aux4 computer clipboard paste --text '${text}' --app '{{app}}'"
+    execute: "aux4 computer clipboard paste --text value(text) param(app)"
 
   - expression: "clipboard read"
     execute: "aux4 computer clipboard read"

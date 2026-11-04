@@ -175,6 +175,11 @@ registered globally — it only loads (once, lazily, cached for the run) when a 
 block. See the `aux4/playbook` README's "Context Blocks" section for the full block syntax (nesting, nested
 settings, nested errors).
 
+Every step's `--app` is passed via `aux4/playbook`'s `param(app)`, so it uses aux4-core-style escaping and is omitted
+entirely (not passed as an empty string) when neither `with app` nor `in {app}` set one. An app/element/text value
+containing an apostrophe, spaces, or shell-special characters (`$(...)`, backticks, quotes) arrives at the target
+command exactly as typed. See the `aux4/playbook` README's "Escaped Parameters: value() / param()" section.
+
 ## Provider contract
 
 A provider is a package (`aux4/computer-<os>`) that adds `aux4 computer <provider> <command>` for the whole command

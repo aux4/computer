@@ -180,5 +180,5 @@ exit=1
 ```
 
 ```error:partial
-No element matching "Nope" found
+No element matching 'Nope' found
 ```
