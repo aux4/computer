@@ -58,6 +58,21 @@ jobs:
       - name: Go unit tests
         run: go test ./...
 
+      # On dev, the test suite depends on aux4/playbook features that are only published to the
+      # dev hub (prod hub is behind). Install that one dependency from the dev hub BEFORE the
+      # aux4/action@v1 test step runs, scoped to just this install command -- setting
+      # AUX4_REGISTRY_URL at job/step level around the action itself breaks its own host tooling
+      # (pkger/render aren't on the dev hub). aux4/action@v1's own pkger install --fromFile then
+      # finds aux4/playbook already installed and never re-resolves it against the (prod) registry.
+      - name: Install dev-hub aux4/playbook (dev branch only)
+        if: github.ref_name == 'dev'
+        run: |
+          curl -fsSL https://aux4.sh | sh
+          echo "$HOME/.aux4.config/packages/aux4/aux4" >> "$GITHUB_PATH"
+          export PATH="$HOME/.aux4.config/packages/aux4/aux4:$PATH"
+          curl -fsSL https://pkger.aux4.sh | sh
+          AUX4_REGISTRY_URL=https://dev.api.hub.aux4.io/v1/packages aux4 aux4 pkger install aux4/playbook
+
       - uses: aux4/action@v1
         with:
           command: test
@@ -72,6 +87,15 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.23'
+
+      - name: Install dev-hub aux4/playbook (dev branch only)
+        if: github.ref_name == 'dev'
+        run: |
+          curl -fsSL https://aux4.sh | sh
+          echo "$HOME/.aux4.config/packages/aux4/aux4" >> "$GITHUB_PATH"
+          export PATH="$HOME/.aux4.config/packages/aux4/aux4:$PATH"
+          curl -fsSL https://pkger.aux4.sh | sh
+          AUX4_REGISTRY_URL=https://dev.api.hub.aux4.io/v1/packages aux4 aux4 pkger install aux4/playbook
 
       - uses: aux4/action@v1
         with:
