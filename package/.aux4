@@ -4,6 +4,9 @@
   "version": "0.1.2",
   "description": "Computer-use for AI agents on any OS: one command surface (screenshot, find, click, type, windows, clipboard...) dispatched to the provider for this operating system, with a shared stop switch, action log, conformance suite and AI skill",
   "license": "Apache-2.0",
+  "dependencies": [
+    "aux4/playbook"
+  ],
   "tags": [
     "aux4",
     "computer-use",
@@ -1636,6 +1639,21 @@
                 "default": ""
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "playbook:actions",
+      "commands": [
+        {
+          "name": "computer",
+          "private": true,
+          "execute": [
+            "cat ${packageDir}/actions/computer.yaml"
+          ],
+          "help": {
+            "text": "Computer-use actions bound to the 'computer' playbook context (not loaded globally; see 'aux4 playbook execute')"
           }
         }
       ]

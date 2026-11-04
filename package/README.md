@@ -134,6 +134,47 @@ foreground and the fallback; coordinates; stop and log; the silent data-loss war
 by the current provider's platform notes (`aux4 computer <provider> notes`). `--provider` picks another provider's
 notes.
 
+## Playbook
+
+`aux4/computer` provides a `computer` [playbook](https://hub.aux4.io/package/aux4/playbook) context: plain-English
+scripts can drive this package through `aux4 playbook execute`, scoped to a block so its verbs never collide with
+any other plugin's actions.
+
+```text
+on context computer with app "Calculator"
+  open "Calculator"
+  wait for "0"
+  click on "7"
+  click on "Add"
+  click on "3"
+  click on "Equals"
+  wait for "10"
+  screenshot "result.png"
+end of context
+```
+
+```bash
+aux4 playbook execute script.txt
+```
+
+Every step calls the front door `aux4 computer <command>`, never a provider binary directly, so the shared stop
+switch and action log always apply.
+
+- `with app "<name>"` on the block sets the default target for every step inside it (`{{app}}`). Omit it and steps
+  act on the frontmost app / whole screen (full access) — just like calling `aux4 computer` directly without `--app`.
+- `... in {app}` on an individual step overrides the block's app for that line only, e.g. `click on "OK" in "Finder"`.
+- Verbs: `open {app}`, `focus {app}`, `quit {app}`, `state`, `find {text}`, `wait for {text}`, `click on {name}`,
+  `click at {x} {y}`, `type {text}`, `shortcut {keys}` / `press {keys}`, `scroll down {n}` / `scroll up {n}`,
+  `drag from {x} {y} to {x} {y}`, `menu {path}`, `dialog` / `press {button} dialog button`, `screenshot [{file}]`,
+  `ocr [{text}]`, `clipboard copy` / `clipboard paste {text}` / `clipboard read`.
+- `click on {name}` has no direct equivalent on `click` (which only takes coordinates or an element ref), so it
+  resolves the label to coordinates with `find` first.
+
+The action file (`package/actions/computer.yaml`) declares a top-level `context: computer` key, so it is never
+registered globally — it only loads (once, lazily, cached for the run) when a script enters an `on context computer`
+block. See the `aux4/playbook` README's "Context Blocks" section for the full block syntax (nesting, nested
+settings, nested errors).
+
 ## Provider contract
 
 A provider is a package (`aux4/computer-<os>`) that adds `aux4 computer <provider> <command>` for the whole command
