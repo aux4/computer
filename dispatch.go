@@ -100,12 +100,41 @@ func cmdDispatch(args []string) int {
 		}
 	}
 
+	// ocr --format text is reformatted by the core after the provider replies; providers never see --format
+	// at all (they only know json), so it's stripped from both the flag map and the raw argv before the
+	// provider's argv is built below.
+	ocrFormat := ""
+	if command == "ocr" {
+		ocrFormat = flags["format"]
+		delete(flags, "format")
+		flagArgv = removeFlagPair(flagArgv, "format")
+	}
+
 	argv := append([]string{"computer", provider}, path...)
 	// --name=value keeps values that start with '-' (negative coordinates, "--text") from being read as flags.
 	for i := 0; i+1 < len(flagArgv); i += 2 {
 		argv = append(argv, flagArgv[i]+"="+flagArgv[i+1])
 	}
+
+	if ocrFormat == "text" {
+		return execOcrText(argv)
+	}
 	return execPassthrough(argv)
+}
+
+// removeFlagPair drops a "--name value" pair from a flat argv slice (as produced by params()), leaving
+// everything else in order.
+func removeFlagPair(argv []string, name string) []string {
+	target := "--" + name
+	out := make([]string, 0, len(argv))
+	for i := 0; i < len(argv); i++ {
+		if argv[i] == target && i+1 < len(argv) {
+			i++
+			continue
+		}
+		out = append(out, argv[i])
+	}
+	return out
 }
 
 // execPassthrough runs aux4 with an explicit argv (no shell parses it, so no value can break out), wires
