@@ -17,6 +17,9 @@ bringing the app forward. Check `mode` in each result.
    role names or the mac names (AXButton, AXTextField, AXStaticText, AXCheckBox, AXMenuItem, AXWindow).
 3. **OCR fallback** -- when the text isn't in the accessibility tree (canvas, web content, images):
    `aux4 computer ocr --app <App> --text "<text>"` reads the window's pixels; use the match's `windowCenter`.
+   To just see what an app currently shows (no coordinates, nothing to click), use
+   `aux4 computer ocr --app <App> --format text`: plain text lines in reading order, one line per row on
+   screen, instead of the full JSON with a position for every piece of text.
 4. **Look** -- when you need to see the layout: `aux4 computer screenshot --app <App> --annotate true` draws a
    numbered box on each actionable element and returns `marks: [{n, ref, role, label, frame, center, windowCenter,
    image}]`. Look at the image, pick a number, act on that mark's `ref`. `--roles all` also marks text and images.

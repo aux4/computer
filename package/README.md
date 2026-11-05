@@ -69,7 +69,7 @@ The Windows provider is named `win` because `aux4 computer windows` is the comma
 | `aux4 computer read` | The full accessibility tree of an app |
 | `aux4 computer find` | Elements whose label or value contains a text |
 | `aux4 computer screenshot` | Screenshot of a display or an app's window; `--annotate true` numbers the elements |
-| `aux4 computer ocr` | Recognize text in an app window, image or the screen |
+| `aux4 computer ocr` | Recognize text in an app window, image or the screen; `--format text` prints plain reading-order lines instead of JSON with positions |
 | `aux4 computer wait` | Wait until a text or role appears (or disappears) |
 | `aux4 computer click` | Click coordinates or press an element |
 | `aux4 computer move` | Move the mouse cursor |
@@ -98,6 +98,29 @@ The Windows provider is named `win` because `aux4 computer windows` is the comma
 
 Every command except `stop`, `resume` and `log` takes `--provider`. The flags of each
 command are those of the provider commands; see `aux4 aux4 man computer <command>`.
+
+### Reading OCR as plain text
+
+`aux4 computer ocr` always returns `matches`: every recognized line, with `confidence`, `frame` and `center` —
+useful for clicking a word, but verbose to just read, since every button label and the on-screen display come
+back with a position each. `--format text` reformats the same matches as plain text instead, with no coordinates:
+
+```bash
+aux4 computer ocr --app Calculator --format text
+```
+
+```text
+42+75×100
+7,542
+AC  %  7  8  9  ÷
+```
+
+Lines come out in reading order: matches are grouped into rows by vertical position (a few pixels of jitter
+between words on the same line don't split it), and each row is sorted left-to-right, items separated by two
+spaces. `--format text` never changes what `--text` filters, only how the result is printed — with both given,
+only the matching lines are returned, reformatted the same way. An error (timeout, bad `--languages`, etc.) is
+unaffected: it's still JSON on stderr with exit code `1`. `--format` is handled by this command, the same for
+every provider — see `aux4 aux4 man computer ocr`.
 
 ## Stop switch and action log
 
@@ -133,6 +156,9 @@ Prints the method for agents — state, find, OCR, annotate, act by ref, menu, s
 foreground and the fallback; coordinates; stop and log; the silent data-loss warning for background edits — followed
 by the current provider's platform notes (`aux4 computer <provider> notes`). `--provider` picks another provider's
 notes.
+
+To just see what an app currently shows, without wading through a position for every piece of text, use
+`aux4 computer ocr --app <App> --format text` (see "Reading OCR as plain text" below).
 
 ## Playbook
 

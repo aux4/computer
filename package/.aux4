@@ -176,7 +176,7 @@
         {
           "name": "ocr",
           "execute": [
-            "${packageDir}/aux4-computer dispatch ocr values(provider) params(app, image, text, level, languages, mode, scale, timeout)"
+            "${packageDir}/aux4-computer dispatch ocr values(provider) params(app, image, text, level, languages, mode, scale, timeout, format)"
           ],
           "help": {
             "text": "Recognize text on the screen, an app's window or a PNG, with positions in click coordinates",
@@ -229,6 +229,15 @@
                 "name": "timeout",
                 "text": "Give up with a JSON error after this long, e.g. 30s, 2m (default 60s: the first recognition after installing or updating takes about 30s) (provider default: 60s)",
                 "default": ""
+              },
+              {
+                "name": "format",
+                "text": "json (default): the full matches array with positions; text: the recognized text as plain lines in reading order, grouped into rows by vertical position and sorted left-to-right within each row, no coordinates (handled by this core command, same for every provider)",
+                "default": "",
+                "options": [
+                  "json",
+                  "text"
+                ]
               },
               {
                 "name": "provider",
