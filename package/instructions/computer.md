@@ -8,6 +8,24 @@ Every command prints one JSON object on stdout (errors: JSON on stderr, exit cod
 computer: actions go to the app in the background where the platform allows it, without moving their cursor or
 bringing the app forward. Check `mode` in each result.
 
+## Explore the app before acting
+
+Every app does things its own way, so find out how this one does it instead of guessing:
+
+- What the app can do: `aux4 computer menu --app <App>` lists its menus and items, with their keyboard
+  shortcuts. Run an item with `aux4 computer menu --app <App> --path "<Menu> > <Item>"`. Ignore the system
+  (Apple) menu items (Shut Down, Restart, Log Out, Lock Screen, Force Quit) unless the person asks for them.
+- What is on screen: `aux4 computer state --app <App>` (windows, focused field, controls with refs).
+- A dialog, sheet or panel opened by an action: `aux4 computer dialog --app <App>` lists its fields (label,
+  role, ref) and buttons. Fill each field through its own control: text fields with
+  `aux4 computer set --app <App> --element <ref> --value "..."`, pop-up buttons with
+  `aux4 computer set --app <App> --element <ref> --option "..."`, then press a button with
+  `aux4 computer dialog --app <App> --press "<button>"`.
+
+Use the control meant for each piece of input. Don't type paths, commands or several values into one field
+hoping the app works it out: if a field holds a name, put only the name there, and choose a location, format
+or option with the control that offers it.
+
 ## When a step fails or the UI looks unexpected
 
 If a step fails, is refused as a repeat, or the app doesn't look as expected (a dialog or panel you don't
