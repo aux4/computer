@@ -8,6 +8,22 @@ Every command prints one JSON object on stdout (errors: JSON on stderr, exit cod
 computer: actions go to the app in the background where the platform allows it, without moving their cursor or
 bringing the app forward. Check `mode` in each result.
 
+## When a step fails or the UI looks unexpected
+
+If a step fails, is refused as a repeat, or the app doesn't look as expected (a dialog or panel you don't
+recognize, an expected control isn't there) -- don't guess and don't repeat the same action. Escalate to looking:
+
+1. `aux4 computer screenshot --app <App> --annotate true` -- get a fresh numbered picture of exactly what's there now.
+2. Read the `marks` list in the result: each actionable element has `n`, `ref`, `role`, `label` and a `value` if it
+   has one. Match what you're looking for by `label`/`role`/`value`, not by guessing position.
+3. Act on that mark's `ref`: `click --element <ref>` for buttons, `set --element <ref> --option "…"` for pop-up
+   buttons (`role: AXPopUpButton`), `set --element <ref> --value "…"` for text fields, `set --element <ref> --checked
+   true` for checkboxes.
+4. Check again with `aux4 computer state --app <App>` (or `wait`) before the next step -- confirm the action actually
+   landed rather than assuming it did.
+
+This is the fallback for any stuck step, not a special case for one app or one kind of dialog.
+
 ## The loop
 
 1. **State** -- `aux4 computer state --app <App>`: app, windows, focused element, open dialog and a compact tree of
