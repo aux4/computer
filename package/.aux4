@@ -1,7 +1,7 @@
 {
   "scope": "aux4",
   "name": "computer",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Computer-use for AI agents on any OS: one command surface (screenshot, find, click, type, windows, clipboard...) dispatched to the provider for this operating system, with a shared stop switch, action log, conformance suite and AI skill",
   "license": "Apache-2.0",
   "dependencies": [
